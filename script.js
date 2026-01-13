@@ -22,12 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // Fetch Images from Lorem Picsum
 async function fetchImages() {
     try {
-        // Fetch list of 10 images
-        // We use v2 list. 
-        const response = await fetch('https://picsum.photos/v2/list?limit=10');
+        // Fetch list of 100 images, then pick 10 random
+        const response = await fetch('https://picsum.photos/v2/list?limit=100');
         const data = await response.json();
         
-        renderGallery(data);
+        // Shuffle and select 10
+        shuffleArray(data);
+        const selectedImages = data.slice(0, 10);
+
+        renderGallery(selectedImages);
     } catch (error) {
         console.error('Error fetching images:', error);
         galleryGrid.innerHTML = '<p>画像の読み込みに失敗しました。</p>';
@@ -46,7 +49,7 @@ function renderGallery(images) {
         // IDs are reliable from Lorem Picsum
         const thumbUrl = `https://picsum.photos/id/${img.id}/500/600`;
         
-        item.style.backgroundImage = `url(${thumbUrl})`;
+        item.style.backgroundImage = `url("${thumbUrl}")`;
         item.dataset.fullUrl = `https://picsum.photos/id/${img.id}/1200/1440`; // Retina ready (2x for 600px width)
         
         item.addEventListener('click', () => {
@@ -112,7 +115,7 @@ function createPuzzle(url) {
         // but for checking logic we might just read the DOM children order.
 
         // Set Image
-        piece.style.backgroundImage = `url(${url})`;
+        piece.style.backgroundImage = `url("${url}")`;
         
         // Calculate Background Position based on CORRECT index
         const row = Math.floor(correctIndex / COLS);
