@@ -5,32 +5,47 @@ const puzzleContainer = document.getElementById('puzzle-container');
 const backBtn = document.getElementById('back-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const statusText = document.getElementById('status-text');
+const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+const hintImage = document.getElementById('hint-image');
 
 let currentImage = '';
 let isGameActive = false;
+let COLS = 4;
+let ROWS = 5;
 
-// Config
-const COLS = 5;
-const ROWS = 6;
+const difficultySettings = {
+    easy: { cols: 3, rows: 4 },
+    normal: { cols: 4, rows: 5 },
+    hard: { cols: 5, rows: 6 }
+};
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
     fetchImages();
+
+    difficultyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const difficulty = button.dataset.difficulty;
+            COLS = difficultySettings[difficulty].cols;
+            ROWS = difficultySettings[difficulty].rows;
+            
+            difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            
+            galleryGrid.classList.remove('disabled');
+        });
+    });
     
     backBtn.addEventListener('click', showGallery);
     refreshBtn.addEventListener('click', fetchImages);
 });
 
-// Fetch Images from Lorem Picsum
 async function fetchImages() {
     try {
         galleryGrid.innerHTML = '<p>読み込み中...</p>';
-        // Fetch list of 100 images from a random page to ensure variety
         const randomPage = Math.floor(Math.random() * 10) + 1;
         const response = await fetch(`https://picsum.photos/v2/list?page=${randomPage}&limit=100`);
         const data = await response.json();
         
-        // Shuffle and select 10
         shuffleArray(data);
         const selectedImages = data.slice(0, 10);
 
@@ -41,22 +56,22 @@ async function fetchImages() {
     }
 }
 
-// Render Gallery
 function renderGallery(images) {
     galleryGrid.innerHTML = '';
     images.forEach(img => {
         const item = document.createElement('div');
         item.classList.add('gallery-item');
         
-        // Use a high-res url with correct aspect ratio
-        // Original images can be any size, we force 500x600 for thumbnails to match ratio
-        // IDs are reliable from Lorem Picsum
         const thumbUrl = `https://picsum.photos/id/${img.id}/500/600`;
         
         item.style.backgroundImage = `url("${thumbUrl}")`;
-        item.dataset.fullUrl = `https://picsum.photos/id/${img.id}/1200/1440`; // Retina ready (2x for 600px width)
+        item.dataset.fullUrl = `https://picsum.photos/id/${img.id}/1200/1440`;
         
         item.addEventListener('click', () => {
+            if (!document.querySelector('.difficulty-btn.selected')) {
+                alert('最初に難易度を選択してください。');
+                return;
+            }
             startGame(item.dataset.fullUrl);
         });
         
@@ -64,14 +79,13 @@ function renderGallery(images) {
     });
 }
 
-// Switch Views
 function showGallery() {
     isGameActive = false;
     galleryView.classList.add('active');
     galleryView.classList.remove('hidden');
     gameView.classList.add('hidden');
     gameView.classList.remove('active');
-    puzzleContainer.innerHTML = ''; // Cleanup
+    puzzleContainer.innerHTML = '';
     puzzleContainer.classList.remove('solved');
 }
 
@@ -82,46 +96,39 @@ function showGame() {
     gameView.classList.remove('hidden');
 }
 
-// Start Game
 function startGame(imageUrl) {
     currentImage = imageUrl;
     isGameActive = true;
+    hintImage.src = imageUrl;
     showGame();
     createPuzzle(imageUrl);
 }
 
-// Create Puzzle
 function createPuzzle(url) {
     puzzleContainer.innerHTML = '';
     puzzleContainer.classList.remove('solved');
     statusText.textContent = "ドラッグして入れ替え";
+    puzzleContainer.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+    puzzleContainer.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
 
     const totalPieces = COLS * ROWS;
     const pieces = [];
 
-    // Create indices
     for (let i = 0; i < totalPieces; i++) {
         pieces.push(i);
     }
 
-    // Shuffle
     shuffleArray(pieces);
 
-    // Create DOM elements
     pieces.forEach((correctIndex, currentIndex) => {
         const piece = document.createElement('div');
         piece.classList.add('puzzle-piece');
         piece.draggable = true;
         
-        // Store data
         piece.dataset.correctIndex = correctIndex;
-        // The current visual position is implied by DOM order, 
-        // but for checking logic we might just read the DOM children order.
 
-        // Set Image
         piece.style.backgroundImage = `url("${url}")`;
         
-        // Calculate Background Position based on CORRECT index
         const row = Math.floor(correctIndex / COLS);
         const col = correctIndex % COLS;
         
@@ -129,8 +136,8 @@ function createPuzzle(url) {
         const yPct = row * (100 / (ROWS - 1));
         
         piece.style.backgroundPosition = `${xPct}% ${yPct}%`;
+        piece.style.backgroundSize = `${COLS * 100}% ${ROWS * 100}%`;
 
-        // Add Events
         addDragEvents(piece);
 
         puzzleContainer.appendChild(piece);
@@ -146,11 +153,9 @@ function shuffleArray(array) {
     }
 }
 
-// Drag & Drop Logic
 let draggedSource = null;
 
 function addDragEvents(piece) {
-    // Desktop Drag Events
     piece.addEventListener('dragstart', handleDragStart);
     piece.addEventListener('dragover', handleDragOver);
     piece.addEventListener('drop', handleDrop);
@@ -158,19 +163,15 @@ function addDragEvents(piece) {
     piece.addEventListener('dragleave', handleDragLeave);
     piece.addEventListener('dragend', handleDragEnd);
 
-    // Touch Events
     piece.addEventListener('touchstart', handleTouchStart, {passive: false});
     piece.addEventListener('touchmove', handleTouchMove, {passive: false});
     piece.addEventListener('touchend', handleTouchEnd);
 }
 
-// --- Mouse Drag Handlers ---
 function handleDragStart(e) {
     if (!isGameActive) return;
     draggedSource = this;
     
-    // Defer adding the class so the browser takes a snapshot of the element 
-    // BEFORE it becomes semi-transparent/styled as 'dragging'.
     setTimeout(() => {
         this.classList.add('dragging');
     }, 0);
@@ -206,19 +207,16 @@ function handleDrop(e) {
 
 function handleDragEnd(e) {
     this.classList.remove('dragging');
-    // Cleanup 'over' class from all pieces
     const pieces = document.querySelectorAll('.puzzle-piece');
     pieces.forEach(p => p.classList.remove('over'));
     
     checkWin();
 }
 
-// --- Touch Handlers (Custom implementation) ---
 let touchStartElem = null;
 
 function handleTouchStart(e) {
     if (!isGameActive) return;
-    // Prevent scrolling
     e.preventDefault(); 
     touchStartElem = this;
     this.classList.add('dragging');
@@ -228,14 +226,9 @@ function handleTouchMove(e) {
     if (!isGameActive) return;
     e.preventDefault();
     
-    // Optional: Visual feedback of dragging could be improved here by moving a clone,
-    // but for now we rely on the 'dragging' class styling.
-    
-    // Highlight element under finger
     const touch = e.touches[0];
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
     
-    // Clear previous 'over' states
     document.querySelectorAll('.puzzle-piece').forEach(p => p.classList.remove('over'));
     
     if (target && target.classList.contains('puzzle-piece') && target !== touchStartElem) {
@@ -260,19 +253,8 @@ function handleTouchEnd(e) {
     touchStartElem = null;
 }
 
-// Swap Logic
 function swapPieces(elem1, elem2) {
-    // Visual swap in DOM
-    // We can swap by inserting elem1 before elem2, or using a placeholder
-    
     const parent = puzzleContainer;
-    const idx1 = Array.from(parent.children).indexOf(elem1);
-    const idx2 = Array.from(parent.children).indexOf(elem2);
-    
-    // Simplest way to swap two nodes in a grid without messing up layout flow too much:
-    // Clone them? No, we need references.
-    // Use a temp marker.
-    
     const temp = document.createTextNode('');
     elem1.parentNode.insertBefore(temp, elem1);
     elem2.parentNode.insertBefore(elem1, elem2);
@@ -296,7 +278,6 @@ function updatePieceStates() {
     });
 }
 
-// Check Win
 function checkWin() {
     const pieces = Array.from(puzzleContainer.children);
     let isSolved = true;
@@ -318,7 +299,6 @@ function gameWon() {
     puzzleContainer.classList.add('solved');
     statusText.textContent = "完成！おめでとう！";
     
-    // Confetti
     triggerConfetti();
 }
 
@@ -337,7 +317,6 @@ function triggerConfetti() {
         }
 
         const particleCount = 50 * (timeLeft / duration);
-        // since particles fall down, start a bit higher than random
         confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
         confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
     }, 250);

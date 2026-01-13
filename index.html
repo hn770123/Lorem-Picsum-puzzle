@@ -22,6 +22,11 @@
                     <p>画像を選択してスタート</p>
                     <button id="refresh-btn">画像を更新</button>
                 </div>
+                <div id="difficulty-selection">
+                    <button class="difficulty-btn" data-difficulty="easy">簡単 (3x4)</button>
+                    <button class="difficulty-btn" data-difficulty="normal">普通 (4x5)</button>
+                    <button class="difficulty-btn" data-difficulty="hard">難問 (5x6)</button>
+                </div>
                 <div id="gallery-grid" class="gallery-grid">
                     <!-- Thumbnails will be injected here -->
                 </div>
@@ -33,8 +38,13 @@
                     <button id="back-btn">← 戻る</button>
                     <span id="status-text">ドラッグして入れ替え</span>
                 </div>
-                <div id="puzzle-container" class="puzzle-container">
-                    <!-- Puzzle pieces will be injected here -->
+                <div id="puzzle-and-hint-container">
+                    <div id="puzzle-container" class="puzzle-container">
+                        <!-- Puzzle pieces will be injected here -->
+                    </div>
+                    <div id="hint-container">
+                        <img id="hint-image" src="" alt="Hint">
+                    </div>
                 </div>
             </div>
         </main>
