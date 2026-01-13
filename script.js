@@ -266,40 +266,40 @@ function swapPieces(elem1, elem2) {
 
 function updatePieceStates() {
     const pieces = Array.from(puzzleContainer.children);
-    
-    pieces.forEach(piece => {
-        piece.classList.remove('no-border-right', 'no-border-bottom');
-    });
 
     pieces.forEach((piece, index) => {
         const correctIndex = parseInt(piece.dataset.correctIndex);
-        
+        const currentCol = index % COLS;
+        const currentRow = Math.floor(index / COLS);
+
+        // Reset borders
+        piece.classList.remove('no-border-right', 'no-border-bottom');
+
+        // Set correct/incorrect status
         if (correctIndex === index) {
             piece.classList.add('correct');
             piece.classList.remove('incorrect');
-
-            const row = Math.floor(index / COLS);
-            const col = index % COLS;
-
-            if (col < COLS - 1) {
-                const rightNeighborIndex = index + 1;
-                const rightNeighbor = pieces[rightNeighborIndex];
-                if (rightNeighbor && parseInt(rightNeighbor.dataset.correctIndex) === rightNeighborIndex) {
-                    piece.classList.add('no-border-right');
-                }
-            }
-
-            if (row < ROWS - 1) {
-                const bottomNeighborIndex = index + COLS;
-                const bottomNeighbor = pieces[bottomNeighborIndex];
-                if (bottomNeighbor && parseInt(bottomNeighbor.dataset.correctIndex) === bottomNeighborIndex) {
-                    piece.classList.add('no-border-bottom');
-                }
-            }
-
         } else {
             piece.classList.add('incorrect');
             piece.classList.remove('correct');
+        }
+
+        // Check right neighbor
+        if (currentCol < COLS - 1) {
+            const rightNeighbor = pieces[index + 1];
+            const rightNeighborCorrectIndex = parseInt(rightNeighbor.dataset.correctIndex);
+            if (correctIndex + 1 === rightNeighborCorrectIndex && Math.floor(correctIndex / COLS) === Math.floor(rightNeighborCorrectIndex / COLS)) {
+                piece.classList.add('no-border-right');
+            }
+        }
+
+        // Check bottom neighbor
+        if (currentRow < ROWS - 1) {
+            const bottomNeighbor = pieces[index + COLS];
+            const bottomNeighborCorrectIndex = parseInt(bottomNeighbor.dataset.correctIndex);
+            if (correctIndex + COLS === bottomNeighborCorrectIndex) {
+                piece.classList.add('no-border-bottom');
+            }
         }
     });
 }
