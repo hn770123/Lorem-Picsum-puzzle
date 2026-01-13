@@ -3,6 +3,7 @@ const gameView = document.getElementById('game-view');
 const galleryGrid = document.getElementById('gallery-grid');
 const puzzleContainer = document.getElementById('puzzle-container');
 const backBtn = document.getElementById('back-btn');
+const refreshBtn = document.getElementById('refresh-btn');
 const statusText = document.getElementById('status-text');
 
 let currentImage = '';
@@ -17,13 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchImages();
     
     backBtn.addEventListener('click', showGallery);
+    refreshBtn.addEventListener('click', fetchImages);
 });
 
 // Fetch Images from Lorem Picsum
 async function fetchImages() {
     try {
-        // Fetch list of 100 images, then pick 10 random
-        const response = await fetch('https://picsum.photos/v2/list?limit=100');
+        galleryGrid.innerHTML = '<p>読み込み中...</p>';
+        // Fetch list of 100 images from a random page to ensure variety
+        const randomPage = Math.floor(Math.random() * 10) + 1;
+        const response = await fetch(`https://picsum.photos/v2/list?page=${randomPage}&limit=100`);
         const data = await response.json();
         
         // Shuffle and select 10
