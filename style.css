@@ -142,8 +142,9 @@ button {
 /* Puzzle and Hint Layout */
 #puzzle-and-hint-container {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .puzzle-container {
@@ -160,7 +161,8 @@ button {
 }
 
 #hint-container {
-    width: 120px; 
+    width: 100%;
+    max-width: 200px;
     flex-shrink: 0;
 }
 
