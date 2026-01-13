@@ -220,3 +220,11 @@ button {
     box-shadow: none;
     cursor: default;
 }
+
+.puzzle-piece.no-border-left {
+    border-left: none;
+}
+
+.puzzle-piece.no-border-top {
+    border-top: none;
+}
