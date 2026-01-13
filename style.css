@@ -185,13 +185,19 @@ button {
 }
 
 .puzzle-piece.no-border-right {
+    /* 幅を1px広げて右側のgapを隠す */
+    width: calc(100% + 1px);
     margin-right: -1px;
     z-index: 1;
+    border-right: none;
 }
 
 .puzzle-piece.no-border-bottom {
+    /* 高さを1px広げて下側のgapを隠す */
+    height: calc(100% + 1px);
     margin-bottom: -1px;
     z-index: 1;
+    border-bottom: none;
 }
 
 .puzzle-piece.incorrect {
