@@ -181,6 +181,17 @@ button {
     user-select: none;
     position: relative;
     transition: transform 0.2s ease, box-shadow 0.2s;
+    position: relative;
+}
+
+.puzzle-piece.no-border-right {
+    margin-right: -1px;
+    z-index: 1;
+}
+
+.puzzle-piece.no-border-bottom {
+    margin-bottom: -1px;
+    z-index: 1;
 }
 
 .puzzle-piece.incorrect {
