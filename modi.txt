@@ -1,0 +1,48 @@
+パズル境界線修正プラン
+概要
+ファイル: style.css
+
+変更点: 正解位置で隣接した際、ピースの幅・高さを 1px 拡張してグリッドの隙間（gap）を覆い隠すようにスタイルを変更します。
+
+修正内容
+style.css 内の .puzzle-piece.no-border-right と .puzzle-piece.no-border-bottom の定義を以下のように書き換えてください。
+
+CSS
+/* 修正前（削除または上書き） */
+/*
+.puzzle-piece.no-border-right {
+    margin-right: -1px;
+    z-index: 1;
+}
+
+.puzzle-piece.no-border-bottom {
+    margin-bottom: -1px;
+    z-index: 1;
+}
+*/
+
+/* 修正後（こちらを使用） */
+.puzzle-piece.no-border-right {
+    /* 幅を1px広げて右側のgapを隠す */
+    width: calc(100% + 1px);
+    margin-right: -1px;
+    z-index: 1;
+    border-right: none;
+}
+
+.puzzle-piece.no-border-bottom {
+    /* 高さを1px広げて下側のgapを隠す */
+    height: calc(100% + 1px);
+    margin-bottom: -1px;
+    z-index: 1;
+    border-bottom: none;
+}
+解説
+
+width: calc(100% + 1px): 本来のセル幅（100%）に加え、グリッドの隙間分（1px）だけ幅を広げます。これにより、右隣のピースとの隙間が自分の画像で覆われます。
+
+height: calc(100% + 1px): 同様に高さを広げ、下のピースとの隙間を覆います。
+
+z-index: 1: 拡張した部分が隙間（背景）よりも手前に表示されるようにします（既存コードのまま維持）。
+
+この変更により、正しい位置にピースが並んだ際、隙間なく画像が繋がって見えるようになります。
