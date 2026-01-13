@@ -1,0 +1,158 @@
+:root {
+    --primary-color: #333;
+    --bg-color: #f4f4f4;
+    --piece-border: 1px solid rgba(255,255,255,0.5);
+    --drag-over: rgba(0,0,0,0.2);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent scrolling during game */
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+header {
+    padding: 1rem;
+    text-align: center;
+    background: white;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+main {
+    flex: 1;
+    overflow-y: auto; /* Allow scrolling in gallery */
+    position: relative;
+    padding: 1rem;
+}
+
+/* Views */
+.view {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.view.active {
+    display: flex;
+}
+
+.view.hidden {
+    display: none;
+}
+
+/* Gallery */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding-bottom: 20px;
+}
+
+.gallery-item {
+    aspect-ratio: 5 / 6;
+    background-color: #ddd;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gallery-item:active {
+    transform: scale(0.95);
+}
+
+/* Game Controls */
+.game-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+button {
+    background: none;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Puzzle Board */
+.puzzle-container {
+    width: 100%;
+    aspect-ratio: 5 / 6;
+    position: relative;
+    background-color: #eee;
+    touch-action: none; /* Crucial for touch dragging */
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px; /* Optional: adds a tiny line between pieces */
+    border: 2px solid #333;
+}
+
+.puzzle-piece {
+    width: 100%;
+    height: 100%;
+    background-size: 500% 600%; /* Because 5x6 grid */
+    cursor: grab;
+    user-select: none;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+}
+
+.puzzle-piece.dragging {
+    opacity: 0.8;
+    z-index: 100;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transform: scale(1.05);
+    cursor: grabbing;
+}
+
+.puzzle-piece.over {
+    filter: brightness(0.8);
+}
+
+/* Completed State */
+.puzzle-container.solved {
+    border-color: gold;
+    gap: 0;
+}
+
+.puzzle-container.solved .puzzle-piece {
+    box-shadow: none;
+    cursor: default;
+}
