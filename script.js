@@ -135,6 +135,8 @@ function createPuzzle(url) {
 
         puzzleContainer.appendChild(piece);
     });
+
+    updatePieceStates();
 }
 
 function shuffleArray(array) {
@@ -166,7 +168,13 @@ function addDragEvents(piece) {
 function handleDragStart(e) {
     if (!isGameActive) return;
     draggedSource = this;
-    this.classList.add('dragging');
+    
+    // Defer adding the class so the browser takes a snapshot of the element 
+    // BEFORE it becomes semi-transparent/styled as 'dragging'.
+    setTimeout(() => {
+        this.classList.add('dragging');
+    }, 0);
+    
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.innerHTML);
 }
@@ -270,6 +278,22 @@ function swapPieces(elem1, elem2) {
     elem2.parentNode.insertBefore(elem1, elem2);
     temp.parentNode.insertBefore(elem2, temp);
     temp.parentNode.removeChild(temp);
+
+    updatePieceStates();
+}
+
+function updatePieceStates() {
+    const pieces = Array.from(puzzleContainer.children);
+    pieces.forEach((piece, index) => {
+        const correctIndex = parseInt(piece.dataset.correctIndex);
+        if (correctIndex === index) {
+            piece.classList.add('correct');
+            piece.classList.remove('incorrect');
+        } else {
+            piece.classList.add('incorrect');
+            piece.classList.remove('correct');
+        }
+    });
 }
 
 // Check Win

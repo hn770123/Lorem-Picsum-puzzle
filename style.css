@@ -137,8 +137,11 @@ button {
     cursor: grab;
     user-select: none;
     position: relative;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
     transition: transform 0.2s ease, box-shadow 0.2s;
+}
+
+.puzzle-piece.incorrect {
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
 }
 
 .puzzle-piece.dragging {
